@@ -35,8 +35,7 @@ export async function translatePostingDream(postingDreamTranslate: any) {
         response.push({
             generalComment,
             lang,
-            postingDreamId: postingDreamTranslate.posting_dream_id,
-            status: Status.COMPLETED,
+            postingDreamId: postingDreamTranslate.posting_dream_id
         });
     }
 

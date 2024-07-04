@@ -1,14 +1,14 @@
 import AWS, {SQS} from 'aws-sdk';
 import {queueUrl} from "./config";
+import {SQSEvent} from "aws-lambda";
 AWS.config.update({region: 'us-east-1' });
-
 const sqs = new AWS.SQS();
 
-export async function getMessageFromSqs(): Promise<{ id: number } | null> {
+export async function getMessageFromSqs(event: SQSEvent): Promise<{ id: number } | null> {
     const params: SQS.Types.ReceiveMessageRequest = {
         QueueUrl: queueUrl!,
         MaxNumberOfMessages: 1,
-        WaitTimeSeconds: 20,
+        WaitTimeSeconds: 20
     };
     const dataMessage = await sqs.receiveMessage(params).promise();
     if (!dataMessage.Messages) {

@@ -1,4 +1,5 @@
 import { pool } from './config';
+import {Status} from "./translate-status";
 export async function getPostingDreamById(id: number) {
     const client = await pool.connect();
     const query = `
@@ -22,19 +23,19 @@ export async function getDreamsByPId(id: number) {
 }
 
 
-export async function addPostingDramTranslates(getTranslatePostingDream:any, getTranslateDreams: any) {
+export async function addPostingDramTranslates(getTranslatePostingDream:any, getTranslateDreams: any, postingDreamId:number, uniqueDreamsIds:number[]) {
     const client = await pool.connect();
 
     try {
         await client.query('BEGIN');
         const postingDreamTranslateQuery = `
-            INSERT INTO posting_dream_translate (posting_dream_id, general_comment, is_original, status, lang)
-            VALUES ($1, $2, false, $3, $4)
+            INSERT INTO posting_dream_translate (posting_dream_id, general_comment, is_original, lang)
+            VALUES ($1, $2, false, $3)
         `;
 
         for (const postingDream of getTranslatePostingDream) {
-            const { postingDreamId, generalComment, status, lang } = postingDream;
-            await client.query(postingDreamTranslateQuery, [postingDreamId, generalComment, status, lang]);
+            const { postingDreamId, generalComment, lang } = postingDream;
+            await client.query(postingDreamTranslateQuery, [postingDreamId, generalComment, lang]);
         }
 
         const translateDreamsQuery = `
@@ -52,6 +53,25 @@ export async function addPostingDramTranslates(getTranslatePostingDream:any, get
                 new Date(),
                 new Date(),
             ]);
+        }
+
+        const postingDreamQuery = 'UPDATE posting_dream SET status = $1, updated_at = now() WHERE id = $2';
+        const values = [Status.COMPLETED, postingDreamId];
+
+        const postingDreamRes = await client.query(postingDreamQuery, values);
+        console.log(`posting dream updated: ${postingDreamRes.rowCount}`);
+
+
+        for (const id of uniqueDreamsIds) {
+            const query = `
+                UPDATE dream 
+                SET status = $1, updated_at = now() 
+                WHERE id = $2
+            `;
+            const values = [Status.COMPLETED, id];
+
+            const res = await client.query(query, values);
+            console.log(`Row updated for id ${id}: ${res.rowCount}`);
         }
 
         await client.query('COMMIT');

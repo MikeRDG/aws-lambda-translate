@@ -1,3 +1,3 @@
 sam build
+#sam deploy
 sam local invoke TranslateFunction
-#sam local invoke HelloWorldFunction
