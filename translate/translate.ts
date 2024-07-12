@@ -1,7 +1,7 @@
 import AWS from 'aws-sdk';
 import { Status } from './translate-status';
 
-const supportedLanguages = ['zh', 'en', 'fr', 'de', 'it', 'ko', 'pt', 'ru', 'es', 'tr'];
+const supportedLanguages = ['zh', 'en', 'fr', 'de', 'it', 'ko', 'pt', 'ru', 'es', 'tr', 'ja'];
 
 const translate = new AWS.Translate({ apiVersion: '2017-07-01' });
 export async function translateText(sourceLang: string, targetLang: string, text: string) {
@@ -23,6 +23,11 @@ function getTranslateLanguages(lang: string) {
 }
 
 export async function translatePostingDream(postingDreamTranslate: any) {
+    if (!postingDreamTranslate || !postingDreamTranslate.general_comment) {
+        console.log('----general_comment is not exist----')
+        return
+    }
+
     const response = [];
 
     const currentLang = postingDreamTranslate.lang;

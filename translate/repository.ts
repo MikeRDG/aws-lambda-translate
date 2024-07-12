@@ -28,16 +28,17 @@ export async function addPostingDramTranslates(getTranslatePostingDream:any, get
 
     try {
         await client.query('BEGIN');
-        const postingDreamTranslateQuery = `
+        if (getTranslatePostingDream) {
+            const postingDreamTranslateQuery = `
             INSERT INTO posting_dream_translate (posting_dream_id, general_comment, is_original, lang)
             VALUES ($1, $2, false, $3)
         `;
 
-        for (const postingDream of getTranslatePostingDream) {
-            const { postingDreamId, generalComment, lang } = postingDream;
-            await client.query(postingDreamTranslateQuery, [postingDreamId, generalComment, lang]);
+            for (const postingDream of getTranslatePostingDream) {
+                const { postingDreamId, generalComment, lang } = postingDream;
+                await client.query(postingDreamTranslateQuery, [postingDreamId, generalComment, lang]);
+            }
         }
-
         const translateDreamsQuery = `
             INSERT INTO dream_translate
             (dream_story, dream_title, is_original, lang, dream_id, created_at, updated_at)
